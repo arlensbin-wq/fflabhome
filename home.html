@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantasy Football Lab — Brewing Better Leagues</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Zilla+Slab:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --turf-deep:#16240C; --turf:#1F3111; --turf-lift:#2B4318; --edge:#3C5A24; --edge-soft:#2F4A1B;
+  --gold:#D9B75F; --gold-hi:#F0CE7A; --cream:#F7F5EC; --ink:#14200B; --muted:#9DAE85;
+  --kelly:#3B780B; --tube:#7FD44A; --tube2:#E2803A; --yt:#C4302B;
+  --slab:'Zilla Slab',Georgia,serif; --block:'Anton',Impact,sans-serif;
+  --body:'Barlow',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--turf-deep)}
+body{color:var(--cream);font-family:var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  min-height:100%;padding:0 0 8px}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,rgba(247,245,236,.05) 1px,transparent 1px);background-size:56px 100%;
+  mask-image:linear-gradient(180deg,rgba(0,0,0,.9),transparent 70%)}
+.wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:38px 20px 34px}
+
+/* ---------- hero ---------- */
+.hero{display:flex;align-items:center;gap:24px;flex-wrap:wrap;justify-content:center;text-align:center;
+  flex-direction:column}
+.mark{width:132px;height:132px;border-radius:22px;overflow:hidden;flex:none;
+  border:1px solid var(--edge);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.mark img{width:100%;height:100%;display:block;object-fit:cover}
+.tagline{font-family:var(--block);font-size:clamp(30px,6.4vw,58px);line-height:1;letter-spacing:.01em;
+  text-transform:uppercase;color:var(--cream);text-shadow:0 4px 24px rgba(0,0,0,.4)}
+.tagline em{font-style:normal;color:var(--gold);position:relative;display:inline-block}
+/* carbonation rising off "Better" — bubbles drift up, swell, then pop */
+.fizz{position:absolute;left:-1%;right:-1%;bottom:calc(100% - 5px);height:0;pointer-events:none;overflow:visible}
+.fizz i{position:absolute;bottom:0;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.95),rgba(240,206,122,.5) 58%,rgba(240,206,122,0) 74%);
+  box-shadow:0 0 7px rgba(240,206,122,.45);
+  opacity:0;animation:fizzrise var(--t) linear var(--d) infinite}
+@keyframes fizzrise{
+  0%{opacity:0;transform:translate3d(0,0,0) scale(.45)}
+  16%{opacity:.85}
+  68%{opacity:.8;transform:translate3d(var(--dx),calc(var(--r) * .72),0) scale(1)}
+  87%{opacity:.42;transform:translate3d(var(--dx),calc(var(--r) * .93),0) scale(1.45)}
+  100%{opacity:0;transform:translate3d(var(--dx),var(--r),0) scale(.15)}
+}
+.rule{width:96px;height:3px;background:var(--gold);border-radius:2px;margin:20px auto 0}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.36em;text-transform:uppercase;
+  color:var(--muted);margin-top:18px}
+
+/* ---------- tiles ---------- */
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:40px}
+@media(max-width:900px){.tiles{gap:11px}
+  .tile{min-height:0}
+  .tile .body{padding:14px 14px 16px}
+  .tile h2{font-size:18px}
+  .tile p{font-size:12.5px}
+  .tile .art{height:92px}}
+@media(max-width:620px){.tiles{grid-template-columns:1fr;gap:11px}
+  .tile h2{font-size:21px}.tile p{font-size:13.5px}.tile .art{height:104px}}
+
+.tile{position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit;
+  background:var(--turf);border:1px solid var(--edge-soft);border-radius:14px;overflow:hidden;
+  transition:transform .18s cubic-bezier(.2,.9,.3,1),box-shadow .18s,border-color .18s;
+  min-height:250px}
+.tile:hover,.tile:focus-visible{transform:translateY(-6px);border-color:var(--gold);
+  box-shadow:0 22px 46px rgba(0,0,0,.5);outline:none}
+.tile .art{position:relative;height:112px;overflow:hidden;flex:none;
+  display:flex;align-items:center;justify-content:center}
+.tile .art svg{position:relative;z-index:1}
+.tile .body{padding:18px 20px 20px;display:flex;flex-direction:column;flex:1}
+.tile h2{font-family:var(--slab);font-weight:700;font-size:22px;line-height:1.05;
+  text-transform:uppercase;letter-spacing:.02em}
+.tile p{font-size:14px;line-height:1.5;color:var(--muted);margin-top:9px;flex:1}
+.tile .go{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);margin-top:16px;display:flex;align-items:center;gap:8px}
+.tile:hover .go{color:var(--gold-hi)}
+.tile .go span{transition:transform .18s}
+.tile:hover .go span{transform:translateX(5px)}
+.tile .tag{position:absolute;top:12px;right:12px;z-index:2;font-family:var(--mono);font-size:9px;
+  font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:5px 9px;border-radius:999px;
+  background:rgba(7,14,4,.6);border:1px solid rgba(247,245,236,.22);color:var(--cream)}
+
+.t-centrifuge .art{background:linear-gradient(150deg,rgba(217,183,95,.34),rgba(59,120,11,.2) 70%,transparent)}
+.wheel{filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
+.wheel-spin{transition:transform 1.1s cubic-bezier(.18,.7,.2,1)}
+.t-centrifuge:hover .wheel-spin,
+.t-centrifuge:focus-visible .wheel-spin{transform:rotate(320deg)}
+.t-ranking .art{background:linear-gradient(150deg,rgba(127,212,74,.3),rgba(217,183,95,.18) 70%,transparent)}
+.t-youtube .art{background:linear-gradient(150deg,rgba(196,48,43,.42),rgba(20,32,11,.2) 70%,transparent)}
+.t-youtube:hover{border-color:var(--yt)}
+.t-youtube .go{color:#F2938F}
+.t-youtube:hover .go{color:#FFB3AF}
+
+footer{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:22px 20px 30px;
+  border-top:1px solid var(--edge-soft);text-align:center;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#6C8055}
+footer b{color:var(--gold);font-weight:500}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition-duration:.01ms!important}
+  .fizz{display:none}
+  .wheel-spin{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="mark"><img src="logo.png" alt="Fantasy Football Lab"></div>
+    <div>
+      <div class="tagline">Brewing <em>Better<span class="fizz" aria-hidden="true"><i style="--x:4%;--s:7px;--t:4.1s;--d:0s;--dx:5px;--r:-58px"></i><i style="--x:15%;--s:5px;--t:3.3s;--d:.7s;--dx:-4px;--r:-44px"></i><i style="--x:26%;--s:9px;--t:4.8s;--d:1.6s;--dx:7px;--r:-66px"></i><i style="--x:34%;--s:4px;--t:3s;--d:2.4s;--dx:-3px;--r:-38px"></i><i style="--x:45%;--s:6px;--t:4.4s;--d:.35s;--dx:6px;--r:-54px"></i><i style="--x:56%;--s:8px;--t:3.7s;--d:1.9s;--dx:-6px;--r:-49px"></i><i style="--x:65%;--s:4px;--t:3.1s;--d:1.1s;--dx:4px;--r:-41px"></i><i style="--x:74%;--s:7px;--t:4.6s;--d:2.8s;--dx:-5px;--r:-62px"></i><i style="--x:84%;--s:5px;--t:3.5s;--d:.5s;--dx:5px;--r:-46px"></i><i style="--x:93%;--s:6px;--t:4.2s;--d:2.1s;--dx:-4px;--r:-56px"></i></span></em> Leagues</div>
+      <div class="rule"></div>
+      <div class="kicker">The Fantasy Football Lab</div>
+    </div>
+  </div>
+
+  <div class="tiles">
+
+    <a class="tile t-centrifuge" href="https://www.thefflab.com/centrifuge" target="_top">
+      <div class="art">
+        <span class="tag">Play</span>
+        <svg class="wheel" width="82" height="82" viewBox="0 0 64 70" fill="none" aria-hidden="true"><g class="wheel-spin" style="transform-origin:32px 33px"><path d="M32 33L32.00 9.50A23.5 23.5 0 0 1 43.75 12.65Z" fill="#D9B75F"/><path d="M32 33L43.75 12.65A23.5 23.5 0 0 1 52.35 21.25Z" fill="#F7F5EC"/><path d="M32 33L52.35 21.25A23.5 23.5 0 0 1 55.50 33.00Z" fill="#7FD44A"/><path d="M32 33L55.50 33.00A23.5 23.5 0 0 1 52.35 44.75Z" fill="#E2803A"/><path d="M32 33L52.35 44.75A23.5 23.5 0 0 1 43.75 53.35Z" fill="#D9B75F"/><path d="M32 33L43.75 53.35A23.5 23.5 0 0 1 32.00 56.50Z" fill="#3B780B"/><path d="M32 33L32.00 56.50A23.5 23.5 0 0 1 20.25 53.35Z" fill="#F7F5EC"/><path d="M32 33L20.25 53.35A23.5 23.5 0 0 1 11.65 44.75Z" fill="#D9B75F"/><path d="M32 33L11.65 44.75A23.5 23.5 0 0 1 8.50 33.00Z" fill="#7FD44A"/><path d="M32 33L8.50 33.00A23.5 23.5 0 0 1 11.65 21.25Z" fill="#F7F5EC"/><path d="M32 33L11.65 21.25A23.5 23.5 0 0 1 20.25 12.65Z" fill="#E2803A"/><path d="M32 33L20.25 12.65A23.5 23.5 0 0 1 32.00 9.50Z" fill="#D9B75F"/><circle cx="32" cy="33" r="23.5" fill="none" stroke="#14200B" stroke-width="2.2"/><circle cx="32.00" cy="7.90" r="1.15" fill="#14200B"/><circle cx="44.55" cy="11.26" r="1.15" fill="#14200B"/><circle cx="53.74" cy="20.45" r="1.15" fill="#14200B"/><circle cx="57.10" cy="33.00" r="1.15" fill="#14200B"/><circle cx="53.74" cy="45.55" r="1.15" fill="#14200B"/><circle cx="44.55" cy="54.74" r="1.15" fill="#14200B"/><circle cx="32.00" cy="58.10" r="1.15" fill="#14200B"/><circle cx="19.45" cy="54.74" r="1.15" fill="#14200B"/><circle cx="10.26" cy="45.55" r="1.15" fill="#14200B"/><circle cx="6.90" cy="33.00" r="1.15" fill="#14200B"/><circle cx="10.26" cy="20.45" r="1.15" fill="#14200B"/><circle cx="19.45" cy="11.26" r="1.15" fill="#14200B"/><circle cx="32" cy="33" r="4.6" fill="#14200B"/><circle cx="32" cy="33" r="2.1" fill="#D9B75F"/></g><path d="M32 1.5l5.2 8.4H26.8z" fill="#F7F5EC" stroke="#14200B" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="body">
+        <h2>The Centrifuge</h2>
+        <p>Spin a random franchise, draft one player off its board, and build the best roster you can. Solo or up to four managers.</p>
+        <div class="go">Enter the lab <span>→</span></div>
+      </div>
+    </a>
+
+    <a class="tile t-ranking" href="https://www.thefflab.com/ranking-lab" target="_top">
+      <div class="art">
+        <span class="tag">Build</span>
+        <svg width="74" height="74" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <rect x="10" y="12" width="44" height="9" rx="3" fill="#D9B75F"/>
+          <rect x="10" y="27" width="34" height="9" rx="3" fill="#7FD44A"/>
+          <rect x="10" y="42" width="24" height="9" rx="3" fill="#F7F5EC" opacity=".85"/>
+          <circle cx="50" cy="31.5" r="3" fill="#F7F5EC" opacity=".5"/>
+          <circle cx="41" cy="46.5" r="3" fill="#F7F5EC" opacity=".35"/>
+        </svg>
+      </div>
+      <div class="body">
+        <h2>The Ranking Lab</h2>
+        <p>Drag players into tiers or a straight 1&ndash;N board, then export a shareable graphic of your rankings.</p>
+        <div class="go">Build a board <span>→</span></div>
+      </div>
+    </a>
+
+    <a class="tile t-youtube" href="https://www.youtube.com/channel/UCi8GARUjMpB0Vjzsitb931g" target="_blank" rel="noopener">
+      <div class="art">
+        <span class="tag">Watch</span>
+        <svg width="80" height="80" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <rect x="6" y="15" width="52" height="34" rx="9" fill="#C4302B"/>
+          <path d="M27 24.5l14 7.5-14 7.5z" fill="#fff"/>
+        </svg>
+      </div>
+      <div class="body">
+        <h2>The Channel</h2>
+        <p>Dynasty rankings, start/sit calls, and the weekly show. New episodes on YouTube.</p>
+        <div class="go">Watch on YouTube <span>→</span></div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+<footer>The Fantasy Football Lab · <b>@thefflab</b> · Brewing Better Leagues</footer>
+</body>
+</html>
